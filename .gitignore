@@ -1,0 +1,21 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+
+# Editores
+.vscode/
+.idea/
+*.sublime-*
+
+# Backups e temporários
+*.bak
+*.tmp
+*.log
+*.zip
+
+# Credenciais
+.env
+*.key
+*.pem

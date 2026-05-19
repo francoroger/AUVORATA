@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://auvorata.com.br/sitemap.xml

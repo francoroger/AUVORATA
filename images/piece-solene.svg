@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
+    <defs>
+        <radialGradient id="bg-solene" cx="50%" cy="55%" r="65%">
+            <stop offset="0%" stop-color="#1a1410"/>
+            <stop offset="40%" stop-color="#0a0805"/>
+            <stop offset="100%" stop-color="#000000"/>
+        </radialGradient>
+
+        <radialGradient id="gold-band" cx="35%" cy="35%" r="70%">
+            <stop offset="0%" stop-color="#fbe9a8"/>
+            <stop offset="25%" stop-color="#e8c878"/>
+            <stop offset="50%" stop-color="#c89548"/>
+            <stop offset="75%" stop-color="#8a5e22"/>
+            <stop offset="100%" stop-color="#4a2f10"/>
+        </radialGradient>
+
+        <radialGradient id="gold-band-inner" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#5a3818"/>
+            <stop offset="60%" stop-color="#3a2410"/>
+            <stop offset="100%" stop-color="#1a0f08"/>
+        </radialGradient>
+
+        <radialGradient id="diamond" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+            <stop offset="30%" stop-color="#f0eee0" stop-opacity="0.95"/>
+            <stop offset="70%" stop-color="#c8b890" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#8a7350" stop-opacity="0.5"/>
+        </radialGradient>
+
+        <filter id="glow-soft">
+            <feGaussianBlur stdDeviation="8" result="blur"/>
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <rect width="800" height="1000" fill="url(#bg-solene)"/>
+
+    <!-- raios de luz sutis ao fundo -->
+    <g opacity="0.08" stroke="#d4af5c" stroke-width="0.5" fill="none">
+        <line x1="400" y1="500" x2="100" y2="100"/>
+        <line x1="400" y1="500" x2="700" y2="100"/>
+        <line x1="400" y1="500" x2="100" y2="900"/>
+        <line x1="400" y1="500" x2="700" y2="900"/>
+        <line x1="400" y1="500" x2="50" y2="500"/>
+        <line x1="400" y1="500" x2="750" y2="500"/>
+    </g>
+
+    <!-- pedestal/sombra -->
+    <ellipse cx="400" cy="780" rx="220" ry="20" fill="#000" opacity="0.7" filter="url(#glow-soft)"/>
+
+    <!-- ANEL — banda externa -->
+    <g transform="translate(400, 540)">
+        <!-- banda dourada -->
+        <ellipse cx="0" cy="0" rx="200" ry="220" fill="url(#gold-band)"/>
+        <!-- vão interno do anel -->
+        <ellipse cx="0" cy="0" rx="130" ry="150" fill="url(#gold-band-inner)"/>
+
+        <!-- detalhes de luz na banda (reflexos) -->
+        <path d="M -180 -40 Q -160 -180 -40 -210" stroke="#fbe9a8" stroke-width="3" fill="none" opacity="0.7" stroke-linecap="round"/>
+        <path d="M -190 30 Q -180 100 -120 180" stroke="#8a5e22" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/>
+
+        <!-- detalhe gravado: sol nascente no topo da banda -->
+        <g transform="translate(0, -195)" opacity="0.9">
+            <g stroke="#fbe9a8" stroke-width="1.2" fill="none" stroke-linecap="round">
+                <line x1="0" y1="-25" x2="0" y2="-10"/>
+                <line x1="-8" y1="-22" x2="-6" y2="-9"/>
+                <line x1="8" y1="-22" x2="6" y2="-9"/>
+                <line x1="-15" y1="-15" x2="-12" y2="-6"/>
+                <line x1="15" y1="-15" x2="12" y2="-6"/>
+                <path d="M -18 4 A 18 18 0 0 1 18 4"/>
+                <line x1="-22" y1="4" x2="22" y2="4"/>
+            </g>
+        </g>
+
+        <!-- DIAMANTE central -->
+        <g transform="translate(0, 0)">
+            <!-- facetas do diamante (octógono) -->
+            <polygon points="0,-90 64,-64 90,0 64,64 0,90 -64,64 -90,0 -64,-64"
+                     fill="url(#diamond)" opacity="0.95"/>
+            <!-- facetas internas -->
+            <polygon points="0,-50 35,-35 50,0 35,35 0,50 -35,35 -50,0 -35,-35"
+                     fill="#ffffff" opacity="0.4"/>
+            <!-- destaque de luz -->
+            <ellipse cx="-25" cy="-30" rx="18" ry="10" fill="#ffffff" opacity="0.9" transform="rotate(-30 -25 -30)"/>
+            <!-- borda definida -->
+            <polygon points="0,-90 64,-64 90,0 64,64 0,90 -64,64 -90,0 -64,-64"
+                     fill="none" stroke="#fbe9a8" stroke-width="1.5" opacity="0.6"/>
+        </g>
+    </g>
+
+    <!-- partículas de luz suaves -->
+    <g fill="#fbe9a8" opacity="0.4">
+        <circle cx="180" cy="280" r="1.5"/>
+        <circle cx="620" cy="200" r="1"/>
+        <circle cx="700" cy="450" r="1.2"/>
+        <circle cx="120" cy="600" r="0.8"/>
+        <circle cx="650" cy="850" r="1"/>
+    </g>
+</svg>
