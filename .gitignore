@@ -9,13 +9,20 @@ desktop.ini
 .idea/
 *.sublime-*
 
-# Backups e temporários
+# Backups e temporarios
 *.bak
 *.tmp
 *.log
 *.zip
 
-# Credenciais
+# Credenciais — NUNCA commitar
 .env
 *.key
 *.pem
+publicar.log
+
+# Config local do cPanel (com API token)
+# Padrao captura qualquer variacao de nome: cpanel-config.bat, cpanel-config..bat, etc
+cpanel-config*.bat
+# Mas mantem o template visivel:
+!cpanel-config.exemplo.bat
