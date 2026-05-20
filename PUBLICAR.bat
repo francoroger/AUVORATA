@@ -1,5 +1,5 @@
 @echo off
-REM PUBLICAR.bat - AUVORATA - v3 (verificacao tolerante)
+REM PUBLICAR.bat - AUVORATA - v4 (Update + Deploy)
 
 if "%~1"=="STAYOPEN" goto :MAIN
 start "AUVORATA - Publicar" cmd /k call "%~f0" STAYOPEN
@@ -15,12 +15,11 @@ echo. > "%LOG%"
 
 echo.
 echo ===============================================
-echo   AUVORATA - Publicar + Verificar
+echo   AUVORATA - Publicar + Verificar (v4)
 echo ===============================================
 echo Pasta: %CD%
 echo.
 
-REM Timestamp unico
 for /f "tokens=2 delims==" %%a in ('wmic OS Get localdatetime /value 2^>nul') do set DT=%%a
 set "STAMP=v0.5.0-%DT:~0,8%-%DT:~8,6%"
 echo %STAMP%> version.txt
@@ -28,6 +27,16 @@ echo [STAMP] %STAMP%
 echo.
 
 if exist ".git\index.lock" del /f /q ".git\index.lock" >>"%LOG%" 2>&1
+
+REM Remover arquivos obsoletos (nao usados na v0.5.0)
+for %%F in ("script.js" "style.css" ".cpanel.yml" "cpanel-deploy.bat" "TESTE.bat" "images\auvorata-logo.png" "images\atelier.svg" "images\hero-piece.svg" "images\piece-aurum.svg" "images\piece-origem.svg" "images\piece-solene.svg" "deploy.bat" "primeiro-setup.bat" "setup-ssh.bat" "SETUP.md") do (
+  if exist "%%~F" (
+    echo [LIMPEZA] Removendo obsoleto: %%~F
+    del /f /q "%%~F" >>"%LOG%" 2>&1
+    git rm --cached "%%~F" >>"%LOG%" 2>&1
+  )
+)
+echo.
 
 echo [1/4] Git?
 where git >nul 2>>"%LOG%" || ( call :ERR "Git nao instalado" & exit /b 1 )
@@ -48,7 +57,7 @@ if errorlevel 1 (
   git commit -m "deploy: %STAMP%" 2>>"%LOG%" || ( call :ERR "Commit falhou" & exit /b 1 )
   echo   [OK] Commit
 ) else (
-  echo   Sem mudancas locais, indo direto pro push
+  echo   Sem mudancas locais
 )
 git push -u origin main 2>>"%LOG%"
 if errorlevel 1 (
@@ -58,49 +67,41 @@ if errorlevel 1 (
 echo   [OK] Push pro GitHub
 echo.
 
-REM cPanel Update from Remote
 if exist "cpanel-config.bat" call cpanel-config.bat
-set "CPANEL_OK=0"
 if not "%CPANEL_TOKEN%"=="" if not "%CPANEL_TOKEN%"=="COLE_O_TOKEN_AQUI" (
-  echo === cPanel Update from Remote ===
-  echo   Repo no cPanel: %CPANEL_REPO%
+  echo === cPanel ===
+  echo   Repo: %CPANEL_REPO%
+  echo.
+  echo   [1/2] Update from Remote (fetch)...
   curl -sk -H "Authorization: cpanel %CPANEL_USER%:%CPANEL_TOKEN%" "https://%CPANEL_HOST%:2083/execute/VersionControl/update?repository_root=%CPANEL_REPO%" > "%TEMP%\auv_upd.json" 2>>"%LOG%"
   type "%TEMP%\auv_upd.json" >> "%LOG%"
-  findstr /C:"\"status\":1" "%TEMP%\auv_upd.json" >nul
-  if not errorlevel 1 (
-    echo   [OK] cPanel pull
-    set "CPANEL_OK=1"
-  ) else (
-    echo   [ERRO] cPanel update falhou. Resposta no log: %LOG%
-    echo   Provavel causa: voce ainda nao reconfigurou o repo no cPanel.
-    echo   Veja GUIA-CPANEL-SETUP.md
-  )
+  findstr /C:"\"status\":1" "%TEMP%\auv_upd.json" >nul && echo   [OK] Fetch OK || echo   [AVISO] Fetch falhou - veja log
   del "%TEMP%\auv_upd.json" 2>nul
+  echo.
+  echo   [2/2] Deploy HEAD Commit (checkout)...
+  curl -sk -X POST -H "Authorization: cpanel %CPANEL_USER%:%CPANEL_TOKEN%" "https://%CPANEL_HOST%:2083/execute/VersionControlDeployment/create?repository_root=%CPANEL_REPO%" > "%TEMP%\auv_dep.json" 2>>"%LOG%"
+  type "%TEMP%\auv_dep.json" >> "%LOG%"
+  findstr /C:"\"status\":1" "%TEMP%\auv_dep.json" >nul && echo   [OK] Deploy OK || echo   [AVISO] Deploy falhou - veja log
+  del "%TEMP%\auv_dep.json" 2>nul
   echo.
 )
 
-REM Verificacao
 echo === VERIFICACAO ===
-echo Aguardando 5s pro servidor processar...
-ping -n 6 127.0.0.1 >nul
+echo Aguardando 10s pro servidor processar...
+ping -n 11 127.0.0.1 >nul
 
 set "REMOTE=__VAZIO__"
-curl -sk -o "%TEMP%\auv_rem.txt" -w "%%{http_code}" "https://auvorata.com.br/version.txt?nc=%RANDOM%" > "%TEMP%\auv_status.txt" 2>>"%LOG%"
+curl -sk -o "%TEMP%\auv_rem.txt" -w "%%{http_code}" "https://auvorata.com.br/version.txt?nc=%RANDOM%" > "%TEMP%\auv_st.txt" 2>>"%LOG%"
 set "HTTPCODE="
-set /p HTTPCODE=<"%TEMP%\auv_status.txt"
-del "%TEMP%\auv_status.txt" 2>nul
+set /p HTTPCODE=<"%TEMP%\auv_st.txt"
+del "%TEMP%\auv_st.txt" 2>nul
 
-echo   HTTP status do servidor: %HTTPCODE%
+echo   HTTP: %HTTPCODE%
 
 if "%HTTPCODE%"=="200" (
-  REM Le primeira linha so se for arquivo texto pequeno
   for /f "usebackq delims=" %%L in ("%TEMP%\auv_rem.txt") do (
     if "!REMOTE!"=="__VAZIO__" set "REMOTE=%%L"
   )
-) else (
-  echo   [ALERTA] Servidor retornou %HTTPCODE% para /version.txt
-  echo   Significa que o arquivo NAO existe na pasta publica.
-  echo   Conclusao: cPanel nao puxou ou clonou em pasta errada.
 )
 del "%TEMP%\auv_rem.txt" 2>nul
 
@@ -117,15 +118,13 @@ if "!REMOTE!"=="!LOCAL!" (
   echo ===============================================
   echo   [OK] DEPLOY VERIFICADO
   echo ===============================================
-  echo   Site atualizado: https://auvorata.com.br
-  echo   Ctrl+F5 no navegador pra ver
 ) else (
   color 0C
   echo ===============================================
-  echo   [FALHOU] Servidor nao tem a versao nova
+  echo   [FALHOU] Servidor desatualizado
   echo ===============================================
-  echo   Veja GUIA-CPANEL-SETUP.md
-  echo   GitHub esta atualizado: https://github.com/francoroger/AUVORATA
+  echo   Se persistir, faca manual: cPanel - Git - Manage
+  echo   - Pull or Deploy - Update + Deploy HEAD Commit
 )
 echo.
 start https://auvorata.com.br?v=%RANDOM%

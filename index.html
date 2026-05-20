@@ -6,8 +6,8 @@
 <title>Auvorata</title>
 <meta name="description" content="Auvorata - a arte do ouro. Em breve.">
 <meta name="theme-color" content="#0a0807">
-<link rel="icon" type="image/png" href="images/auvorata-logo.png">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 65 A20 20 0 0 1 70 45 L30 45 A20 20 0 0 1 50 65 Z' fill='%23d4af5f'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;background:#0a0807;color:#e8dcc4;font-family:'Cormorant Garamond',Georgia,serif;-webkit-font-smoothing:antialiased}
@@ -16,10 +16,32 @@ body{overflow:hidden}
 .sc{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none}
 .sc::-webkit-scrollbar{display:none}
 .s{height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;scroll-snap-align:start;scroll-snap-stop:always;position:relative;text-align:center}
-.logo{width:clamp(280px,42vw,540px);height:auto;opacity:0;transform:translateY(20px);animation:r 2s cubic-bezier(.16,1,.3,1) .3s forwards}
-.cue{position:absolute;bottom:clamp(2rem,6vh,3.5rem);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.85rem;color:#d4af5f;text-decoration:none;font-family:'Inter',sans-serif;font-size:.66rem;letter-spacing:.45em;text-transform:uppercase;opacity:0;animation:r 2s cubic-bezier(.16,1,.3,1) 1.8s forwards}
-.cue i{width:1px;height:32px;background:linear-gradient(to bottom,rgba(212,175,95,.55),transparent);animation:d 2.5s ease-in-out infinite;display:block}
-@keyframes d{0%,100%{transform:scaleY(1);transform-origin:top;opacity:1}50%{transform:scaleY(.4);transform-origin:top;opacity:.5}}
+.logo{width:clamp(300px,46vw,580px);height:auto;display:block}
+.logo .ray,.logo .horiz,.logo .sun{stroke:#d4af5f;fill:none;stroke-linecap:round}
+.logo .ray{stroke-width:2.2;stroke-dasharray:200;stroke-dashoffset:200;animation:drawRay 1.2s ease-out forwards}
+.logo .horiz{stroke-width:1.5;stroke-dasharray:500;stroke-dashoffset:500;animation:drawLine 1.4s ease-out 0.3s forwards}
+.logo .sun{stroke-width:2.5;stroke-dasharray:200;stroke-dashoffset:200;animation:drawSun 1.2s ease-out 0.9s forwards}
+.logo .ray:nth-of-type(1){animation-delay:1.4s}
+.logo .ray:nth-of-type(2){animation-delay:1.5s}
+.logo .ray:nth-of-type(3){animation-delay:1.5s}
+.logo .ray:nth-of-type(4){animation-delay:1.6s}
+.logo .ray:nth-of-type(5){animation-delay:1.6s}
+.logo .ray:nth-of-type(6){animation-delay:1.7s}
+.logo .ray:nth-of-type(7){animation-delay:1.7s}
+.logo .ray:nth-of-type(8){animation-delay:1.8s}
+.logo .ray:nth-of-type(9){animation-delay:1.8s}
+.logo .ray:nth-of-type(10){animation-delay:1.9s}
+.logo .ray:nth-of-type(11){animation-delay:1.9s}
+.logo .ray:nth-of-type(12){animation-delay:2.0s}
+.logo .ray:nth-of-type(13){animation-delay:2.0s}
+.logo .word{font-family:'Cormorant Garamond',Georgia,serif;font-weight:500;font-size:95px;fill:#d4af5f;letter-spacing:8px;opacity:0;animation:fadeWord 2s ease-out 2.6s forwards}
+@keyframes drawRay{to{stroke-dashoffset:0}}
+@keyframes drawLine{to{stroke-dashoffset:0}}
+@keyframes drawSun{to{stroke-dashoffset:0}}
+@keyframes fadeWord{to{opacity:1}}
+.cue{position:absolute;bottom:clamp(2rem,6vh,3.5rem);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.85rem;color:#d4af5f;text-decoration:none;font-family:'Inter',sans-serif;font-size:.66rem;letter-spacing:.45em;text-transform:uppercase;opacity:0;animation:fadeWord 1.6s ease-out 4.2s forwards}
+.cue i{width:1px;height:32px;background:linear-gradient(to bottom,rgba(212,175,95,.55),transparent);animation:drop 2.5s ease-in-out infinite;display:block}
+@keyframes drop{0%,100%{transform:scaleY(1);transform-origin:top;opacity:1}50%{transform:scaleY(.4);transform-origin:top;opacity:.5}}
 .eb{font-family:'Inter',sans-serif;font-size:.68rem;font-weight:400;letter-spacing:.5em;text-transform:uppercase;color:#d4af5f;margin-bottom:2.5rem;opacity:0;transform:translateY(20px);transition:opacity 1.2s,transform 1.2s}
 .mf{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:300;line-height:1.35;color:#e8dcc4;max-width:32rem;margin-bottom:1.75rem;opacity:0;transform:translateY(30px);transition:opacity 1.4s .2s,transform 1.4s .2s}
 .mfs{font-size:clamp(.95rem,1.3vw,1.15rem);font-style:italic;font-weight:300;color:rgba(232,220,196,.6);letter-spacing:.05em;opacity:0;transform:translateY(30px);transition:opacity 1.4s .5s,transform 1.4s .5s}
@@ -31,16 +53,32 @@ body{overflow:hidden}
 .cl a:hover{color:#d4af5f;border-bottom-color:#d4af5f}
 .rp{position:absolute;bottom:1.5rem;left:50%;transform:translateX(-50%);font-family:'Inter',sans-serif;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(232,220,196,.35);white-space:nowrap}
 .s.iv .eb,.s.iv .mf,.s.iv .mfs,.s.iv .at,.s.iv .as,.s.iv .ci,.s.iv .cl{opacity:1;transform:translateY(0)}
-@keyframes r{to{opacity:1;transform:translateY(0)}}
-@media(max-width:720px){.s{padding:2rem 1rem}.cue{font-size:.6rem;letter-spacing:.35em}.rp{font-size:.55rem}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;opacity:1!important;transform:none!important}}
+@media(max-width:720px){.s{padding:2rem 1rem}.logo{width:clamp(260px,80vw,400px)}.cue{font-size:.6rem;letter-spacing:.35em}.rp{font-size:.55rem}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
 </style>
 </head>
 <body>
 <div class="vg"></div>
 <main class="sc">
 <section class="s">
-<img src="images/auvorata-logo.png" alt="Auvorata" class="logo">
+<svg class="logo" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" aria-label="Auvorata">
+<line class="ray" x1="400" y1="240" x2="400" y2="60"/>
+<line class="ray" x1="400" y1="240" x2="360" y2="70"/>
+<line class="ray" x1="400" y1="240" x2="440" y2="70"/>
+<line class="ray" x1="400" y1="240" x2="320" y2="90"/>
+<line class="ray" x1="400" y1="240" x2="480" y2="90"/>
+<line class="ray" x1="400" y1="240" x2="280" y2="125"/>
+<line class="ray" x1="400" y1="240" x2="520" y2="125"/>
+<line class="ray" x1="400" y1="240" x2="245" y2="170"/>
+<line class="ray" x1="400" y1="240" x2="555" y2="170"/>
+<line class="ray" x1="400" y1="240" x2="220" y2="218"/>
+<line class="ray" x1="400" y1="240" x2="580" y2="218"/>
+<line class="ray" x1="400" y1="240" x2="208" y2="240"/>
+<line class="ray" x1="400" y1="240" x2="592" y2="240"/>
+<line class="horiz" x1="180" y1="240" x2="620" y2="240"/>
+<path class="sun" d="M 335 240 A 65 65 0 0 1 465 240"/>
+<text class="word" x="400" y="395" text-anchor="middle">AUVORATA</text>
+</svg>
 <a href="#sobre" class="cue"><span>descubra</span><i></i></a>
 </section>
 <section class="s" id="sobre">
