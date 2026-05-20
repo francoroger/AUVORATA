@@ -1,21 +1,12 @@
 ---
 deployment:
   tasks:
-    # Pasta de destino (publica do dominio auvorata.com.br)
-    - export DEPLOYPATH=/home/rogerfra/auvorata.com.br/
-
-    # Copia os arquivos do site para a pasta publica
-    - /bin/cp index.html $DEPLOYPATH
-    - /bin/cp style.css $DEPLOYPATH
-    - /bin/cp script.js $DEPLOYPATH
-    - /bin/cp .htaccess $DEPLOYPATH
-    - /bin/cp robots.txt $DEPLOYPATH
-    - /bin/cp sitemap.xml $DEPLOYPATH
-
-    # Pasta de imagens (cria se nao existir, sincroniza conteudo)
-    - /bin/mkdir -p $DEPLOYPATH/images
-    - /bin/cp -r images/. $DEPLOYPATH/images/
-
-    # NAO copia: README.md, CHANGELOG.md, PUBLICAR.bat, preview.bat,
-    # .git/, .gitignore, .cpanel.yml, publicar.log
-    # Esses ficam 
+    - /bin/cp index.html /home/rogerfra/auvorata.com.br/index.html
+    - /bin/cp style.css /home/rogerfra/auvorata.com.br/style.css 2>/dev/null || true
+    - /bin/cp script.js /home/rogerfra/auvorata.com.br/script.js 2>/dev/null || true
+    - /bin/cp .htaccess /home/rogerfra/auvorata.com.br/.htaccess
+    - /bin/cp robots.txt /home/rogerfra/auvorata.com.br/robots.txt
+    - /bin/cp sitemap.xml /home/rogerfra/auvorata.com.br/sitemap.xml
+    - /bin/mkdir -p /home/rogerfra/auvorata.com.br/images
+    - /bin/cp -r images/auvorata-logo.png /home/rogerfra/auvorata.com.br/images/auvorata-logo.png
+    - /bin/date > /home/rogerfra/auvorata.com.br/.deploy-marker.txt
