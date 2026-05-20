@@ -1,53 +1,47 @@
-# Auvorata — Maison de Joias
+# Auvorata
 
-Site institucional da maison Auvorata.
+Site institucional da Auvorata — landing page minimalista.
 
-🌐 **Site:** [auvorata.com.br](https://auvorata.com.br)
-📦 **Repositório:** [github.com/francoroger/AUVORATA](https://github.com/francoroger/AUVORATA)
+- **Site:** [auvorata.com.br](https://auvorata.com.br)
+- **Repositorio:** [github.com/francoroger/AUVORATA](https://github.com/francoroger/AUVORATA)
+- **Versao atual:** 0.3.0 (landing clean, paleta clara) — ver [CHANGELOG.md](CHANGELOG.md)
+
+---
+
+## Como publicar uma mudanca
+
+1. Edite `index.html`, `style.css` ou troque o logo em `images/`
+2. Duplo clique em **`PUBLICAR.bat`**
+3. Aperte ENTER quando perguntar a mensagem do commit (ou digite uma descricao)
+4. Esperar terminar — abre o GitHub automaticamente no navegador
+
+A primeira publicacao no cPanel exige um passo manual (Git Version Control > Manage > Update from Remote > Deploy HEAD Commit). Depois disso, a automacao da API esta no roadmap.
 
 ---
 
 ## Estrutura
 
 ```
-auvorata/
-├── index.html           # Página principal
-├── style.css            # Estilos
-├── script.js            # Interações
-├── .htaccess            # HTTPS, cache, segurança
-├── robots.txt           # SEO
-├── sitemap.xml          # SEO
+auvorata-site/
+├── index.html         # Pagina unica (logo + tagline + contato)
+├── style.css          # Paleta clara, animacoes de entrada
 ├── images/
-│   ├── auvorata-logo.png      # Logo original
-│   ├── hero-piece.svg         # Imagem hero
-│   ├── piece-solene.svg       # Coleção I
-│   ├── piece-aurum.svg        # Coleção II
-│   ├── piece-origem.svg       # Coleção III
-│   └── atelier.svg            # Imagem atelier
-├── primeiro-setup.bat   # Setup Git inicial
-├── deploy.bat           # Deploy diário
-├── preview.bat          # Preview local
-└── SETUP.md             # Guia completo
+│   └── auvorata-logo.png    # Logo original (gold on black)
+├── .htaccess          # HTTPS forcado + cache + headers de seguranca
+├── robots.txt         # SEO
+├── sitemap.xml        # SEO
+├── PUBLICAR.bat       # Script de publicacao (commit + push)
+├── preview.bat        # Abre o site no navegador para testar localmente
+├── CHANGELOG.md       # Historico de versoes
+└── README.md          # Este arquivo
 ```
 
-## Comandos
-
-| Comando | O que faz |
-|---------|-----------|
-| `preview.bat` | Abre o site local no navegador |
-| `deploy.bat` | Publica mudanças no GitHub |
-| `primeiro-setup.bat` | Setup inicial (1 vez) |
-
-Leia o **SETUP.md** para o guia completo de configuração.
+---
 
 ## Editando
 
-| Arquivo | O que está nele |
-|---------|----------------|
-| `index.html` | Textos do manifesto, nomes de coleções, dados de contato |
-| `style.css` | Cores (procure `--color-gold`), tamanhos, espaçamentos |
-| `images/*.svg` | Substitua os placeholders por fotos reais quando tiver |
-
-## Contato
-
-contato@auvorata.com.br
+| Quero mudar | Onde mexer |
+|---|---|
+| Texto da tagline | `index.html`, linha com `<p class="tagline">` |
+| Email de contato | `index.html`, linha com `mailto:` |
+| Instagram | `index.html`, linha com `instagram.com/auvorata

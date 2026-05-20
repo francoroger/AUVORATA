@@ -12,6 +12,7 @@ start "AUVORATA - Publicar" cmd /k ""%~f0" STAYOPEN"
 exit /b
 
 :MAIN
+setlocal enabledelayedexpansion
 title AUVORATA - Publicar site
 cd /d "%~dp0"
 
@@ -32,6 +33,37 @@ echo Log completo em: %LOG%
 echo.
 echo ===============================================
 echo.
+
+REM --- Limpar lock files orfaos do git (caso processo anterior tenha morrido) ---
+if exist ".git\index.lock" (
+  echo [SETUP] Removendo lock orfao do git...
+  del /f /q ".git\index.lock" >>"%LOG%" 2>&1
+)
+
+REM --- Limpar arquivos obsoletos (legacy de versoes anteriores) ---
+REM Estes arquivos eram da versao maison editorial / scripts antigos.
+REM Hoje sao substituidos por PUBLICAR.bat + landing minimalista.
+set "LIMPEZA=0"
+for %%F in (
+  "images\atelier.svg"
+  "images\hero-piece.svg"
+  "images\piece-aurum.svg"
+  "images\piece-origem.svg"
+  "images\piece-solene.svg"
+  "deploy.bat"
+  "primeiro-setup.bat"
+  "setup-ssh.bat"
+  "SETUP.md"
+  "script.js"
+) do (
+  if exist "%%~F" (
+    if "!LIMPEZA!"=="0" echo [SETUP] Removendo arquivos obsoletos:
+    echo   - %%~F
+    del /f /q "%%~F" >>"%LOG%" 2>&1
+    set "LIMPEZA=1"
+  )
+)
+if "!LIMPEZA!"=="1" echo.
 
 REM --- Verificar Git ---
 echo [1/5] Verificando Git...
@@ -155,36 +187,4 @@ git push -u origin main 2>>"%LOG%"
 if errorlevel 1 (
   echo.
   echo  [AVISO] Push direto falhou. Tentando sincronizar primeiro...
-  git pull origin main --no-edit --allow-unrelated-histories 2>>"%LOG%"
-  echo.
-  echo  Tentando push novamente...
-  git push -u origin main 2>>"%LOG%"
-  if errorlevel 1 (
-    echo.
-    echo  [ERRO] Push falhou. Veja detalhes em: %LOG%
-    echo.
-    echo Pressione qualquer tecla para fechar...
-    pause >nul
-    exit /b 1
-  )
-)
-
-echo.
-echo ===============================================
-echo   PUBLICADO COM SUCESSO!
-echo ===============================================
-echo.
-echo  GitHub: https://github.com/francoroger/AUVORATA
-echo.
-echo  Proximo passo (so na primeira vez):
-echo  cPanel ^> Git Version Control ^> Manage
-echo  ^> Update from Remote ^> Deploy HEAD Commit
-echo.
-echo ===============================================
-echo.
-echo Abrindo o GitHub no navegador...
-start https://github.com/francoroger/AUVORATA
-echo.
-echo Pressione qualquer tecla para fechar esta janela...
-pause >nul
-exit /b 0
+  git pull origin main 
