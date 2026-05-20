@@ -1,5 +1,5 @@
 @echo off
-REM PUBLICAR.bat - AUVORATA - v4 (Update + Deploy)
+REM PUBLICAR.bat - AUVORATA - v5 (estrutura limpa via labels)
 
 if "%~1"=="STAYOPEN" goto :MAIN
 start "AUVORATA - Publicar" cmd /k call "%~f0" STAYOPEN
@@ -15,7 +15,7 @@ echo. > "%LOG%"
 
 echo.
 echo ===============================================
-echo   AUVORATA - Publicar + Verificar (v4)
+echo   AUVORATA - Publicar + Verificar (v5)
 echo ===============================================
 echo Pasta: %CD%
 echo.
@@ -28,10 +28,10 @@ echo.
 
 if exist ".git\index.lock" del /f /q ".git\index.lock" >>"%LOG%" 2>&1
 
-REM Remover arquivos obsoletos (nao usados na v0.5.0)
+REM Limpar arquivos obsoletos
 for %%F in ("script.js" "style.css" ".cpanel.yml" "cpanel-deploy.bat" "TESTE.bat" "images\auvorata-logo.png" "images\atelier.svg" "images\hero-piece.svg" "images\piece-aurum.svg" "images\piece-origem.svg" "images\piece-solene.svg" "deploy.bat" "primeiro-setup.bat" "setup-ssh.bat" "SETUP.md") do (
   if exist "%%~F" (
-    echo [LIMPEZA] Removendo obsoleto: %%~F
+    echo [LIMPEZA] Removendo: %%~F
     del /f /q "%%~F" >>"%LOG%" 2>&1
     git rm --cached "%%~F" >>"%LOG%" 2>&1
   )
@@ -39,52 +39,74 @@ for %%F in ("script.js" "style.css" ".cpanel.yml" "cpanel-deploy.bat" "TESTE.bat
 echo.
 
 echo [1/4] Git?
-where git >nul 2>>"%LOG%" || ( call :ERR "Git nao instalado" & exit /b 1 )
+where git >nul 2>>"%LOG%"
+if errorlevel 1 ( call :ERR "Git nao instalado" & exit /b 1 )
 echo   [OK]
 
 echo [2/4] Repo?
-if not exist ".git" ( call :ERR "Sem repo Git" & exit /b 1 )
+if not exist ".git" ( call :ERR "Sem repo" & exit /b 1 )
 echo   [OK]
 
 echo [3/4] SSH GitHub?
-ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul || ( call :ERR "SSH falhou" & exit /b 1 )
+ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
+if errorlevel 1 ( call :ERR "SSH falhou" & exit /b 1 )
 echo   [OK]
 
 echo [4/4] Commit + Push
 git add . 2>>"%LOG%"
 git diff --cached --quiet
 if errorlevel 1 (
-  git commit -m "deploy: %STAMP%" 2>>"%LOG%" || ( call :ERR "Commit falhou" & exit /b 1 )
+  git commit -m "deploy: %STAMP%" 2>>"%LOG%"
+  if errorlevel 1 ( call :ERR "Commit falhou" & exit /b 1 )
   echo   [OK] Commit
 ) else (
   echo   Sem mudancas locais
 )
+
 git push -u origin main 2>>"%LOG%"
 if errorlevel 1 (
+  echo   [AVISO] Push direto falhou, sincronizando...
   git pull origin main --no-edit --allow-unrelated-histories 2>>"%LOG%"
-  git push -u origin main 2>>"%LOG%" || ( call :ERR "Push falhou" & exit /b 1 )
+  git push -u origin main 2>>"%LOG%"
+  if errorlevel 1 ( call :ERR "Push falhou" & exit /b 1 )
 )
 echo   [OK] Push pro GitHub
 echo.
 
+REM cPanel - usa labels pra evitar problemas com parenteses aninhados
 if exist "cpanel-config.bat" call cpanel-config.bat
-if not "%CPANEL_TOKEN%"=="" if not "%CPANEL_TOKEN%"=="COLE_O_TOKEN_AQUI" (
-  echo === cPanel ===
-  echo   Repo: %CPANEL_REPO%
-  echo.
-  echo   [1/2] Update from Remote (fetch)...
-  curl -sk -H "Authorization: cpanel %CPANEL_USER%:%CPANEL_TOKEN%" "https://%CPANEL_HOST%:2083/execute/VersionControl/update?repository_root=%CPANEL_REPO%" > "%TEMP%\auv_upd.json" 2>>"%LOG%"
-  type "%TEMP%\auv_upd.json" >> "%LOG%"
-  findstr /C:"\"status\":1" "%TEMP%\auv_upd.json" >nul && echo   [OK] Fetch OK || echo   [AVISO] Fetch falhou - veja log
-  del "%TEMP%\auv_upd.json" 2>nul
-  echo.
-  echo   [2/2] Deploy HEAD Commit (checkout)...
-  curl -sk -X POST -H "Authorization: cpanel %CPANEL_USER%:%CPANEL_TOKEN%" "https://%CPANEL_HOST%:2083/execute/VersionControlDeployment/create?repository_root=%CPANEL_REPO%" > "%TEMP%\auv_dep.json" 2>>"%LOG%"
-  type "%TEMP%\auv_dep.json" >> "%LOG%"
-  findstr /C:"\"status\":1" "%TEMP%\auv_dep.json" >nul && echo   [OK] Deploy OK || echo   [AVISO] Deploy falhou - veja log
-  del "%TEMP%\auv_dep.json" 2>nul
-  echo.
+if "%CPANEL_TOKEN%"=="" goto :SKIP_CPANEL
+if "%CPANEL_TOKEN%"=="COLE_O_TOKEN_AQUI" goto :SKIP_CPANEL
+
+echo === cPanel ===
+echo   Repo: %CPANEL_REPO%
+echo.
+
+echo   [1/2] Update from Remote (fetch)...
+curl -sk -H "Authorization: cpanel %CPANEL_USER%:%CPANEL_TOKEN%" "https://%CPANEL_HOST%:2083/execute/VersionControl/update?repository_root=%CPANEL_REPO%" > "%TEMP%\auv_upd.json" 2>>"%LOG%"
+type "%TEMP%\auv_upd.json" >> "%LOG%"
+findstr /C:"\"status\":1" "%TEMP%\auv_upd.json" >nul
+if errorlevel 1 (
+  echo   [AVISO] Fetch falhou
+) else (
+  echo   [OK] Fetch OK
 )
+del "%TEMP%\auv_upd.json" 2>nul
+echo.
+
+echo   [2/2] Deploy HEAD Commit (checkout)...
+curl -sk -X POST -H "Authorization: cpanel %CPANEL_USER%:%CPANEL_TOKEN%" "https://%CPANEL_HOST%:2083/execute/VersionControlDeployment/create?repository_root=%CPANEL_REPO%" > "%TEMP%\auv_dep.json" 2>>"%LOG%"
+type "%TEMP%\auv_dep.json" >> "%LOG%"
+findstr /C:"\"status\":1" "%TEMP%\auv_dep.json" >nul
+if errorlevel 1 (
+  echo   [AVISO] Deploy falhou
+) else (
+  echo   [OK] Deploy OK
+)
+del "%TEMP%\auv_dep.json" 2>nul
+echo.
+
+:SKIP_CPANEL
 
 echo === VERIFICACAO ===
 echo Aguardando 10s pro servidor processar...
@@ -116,15 +138,15 @@ echo.
 if "!REMOTE!"=="!LOCAL!" (
   color 0A
   echo ===============================================
-  echo   [OK] DEPLOY VERIFICADO
+  echo   [OK] DEPLOY VERIFICADO - SITE NO AR
   echo ===============================================
 ) else (
   color 0C
   echo ===============================================
   echo   [FALHOU] Servidor desatualizado
   echo ===============================================
-  echo   Se persistir, faca manual: cPanel - Git - Manage
-  echo   - Pull or Deploy - Update + Deploy HEAD Commit
+  echo   No cPanel: Git Version Control - Manage
+  echo   - aba Pull or Deploy - Update + Deploy HEAD Commit
 )
 echo.
 start https://auvorata.com.br?v=%RANDOM%
