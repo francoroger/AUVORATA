@@ -6,6 +6,37 @@ Formato: cada vers&atilde;o documenta **o qu&ecirc;** mudou, **por qu&ecirc;** m
 
 ---
 
+## [0.5.0] — 2026-05-20 — Splash + descoberta (4 se&ccedil;&otilde;es com scroll-snap)
+
+### Criado do zero
+- **Estrutura nova de 4 telas** com `scroll-snap-type: y mandatory` (cada se&ccedil;&atilde;o ocupa 100vh, snap suave ao rolar):
+  - **I &mdash; Splash**: s&oacute; o logo grande centralizado no preto, indicador de scroll discreto em dourado pulsante
+  - **II &mdash; Sobre**: manifesto curto "Auvorata nasce no instante em que o ouro encontra a luz"
+  - **III &mdash; Aguarde**: t&iacute;tulo grande em it&aacute;lico dourado "aguarde o despertar"
+  - **IV &mdash; Contato**: email + Instagram em lista vertical com underline dourado discreto
+- **Vignette fixa** escurecendo as bordas (efeito de capa de livro de luxo)
+- **Reveal via IntersectionObserver**: cada se&ccedil;&atilde;o aparece com fade-up suave quando entra no viewport
+- **Paleta preto + dourado fiel ao logo** (`#0a0807` + `#d4af5f`)
+- **Numera&ccedil;&atilde;o romana** das se&ccedil;&otilde;es nos eyebrows (I sobre, II em breve, III contato)
+- **Tipografia**: Cormorant Garamond (display) + Inter (UI)
+- **Mobile-first**: ajustes de tipografia e padding em telas pequenas
+- **Acessibilidade**: respeita `prefers-reduced-motion`
+
+### Por qu&ecirc;
+Roger viu a v0.4.0 "em breve elegante" no ar e pediu pra recomecar do zero com paleta preto+dourado igual ao logo, no formato splash com scroll para descobrir o resto. Visualmente inspirado na imagem do logo (foil dourado sobre preto profundo) que ele compartilhou.
+
+### Arquivos afetados
+- `index.html` &mdash; estrutura nova com `<main class="scroller">` e 4 `<section>`
+- `style.css` &mdash; scroll-snap, vignette, animacoes de reveal por classe `.in-view`
+- `script.js` &mdash; IntersectionObserver pra adicionar `.in-view` quando se&ccedil;&atilde;o entra no viewport
+
+### Removido da v0.4.0
+- Formul&aacute;rio de captura de e-mail (n&atilde;o estava sendo usado / n&atilde;o salvava nada)
+- 3 pilares (Ess&ecirc;ncia / Prop&oacute;sito / Presen&ccedil;a) &mdash; conteudo absorvido pelo manifesto novo
+- Aurora pulsante &mdash; substitu&iacute;da pela vignette fixa (mais sutil)
+
+---
+
 ## [0.4.0] — 2026-05-19 — Rollback para "em breve elegante" (v0.1.0)
 
 ### Voltou

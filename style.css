@@ -1,149 +1,137 @@
 /* =====================================================
-   AUVORATA — v0.1.0 "em breve elegante"
-   Pre-lancamento sobrio · preto + dourado discreto
+   AUVORATA — v0.5.0 "splash + descoberta"
+   4 secoes com scroll-snap · preto profundo + dourado
    ===================================================== */
 
 :root {
   --bg: #0a0807;
-  --bg-soft: #14110e;
+  --bg-deep: #050403;
   --text: #e8dcc4;
-  --text-soft: rgba(232, 220, 196, 0.65);
-  --text-dim: rgba(232, 220, 196, 0.4);
+  --text-soft: rgba(232, 220, 196, 0.6);
+  --text-dim: rgba(232, 220, 196, 0.35);
   --gold: #d4af5f;
-  --gold-soft: rgba(212, 175, 95, 0.6);
-  --gold-dim: rgba(212, 175, 95, 0.25);
-  --rule: rgba(232, 220, 196, 0.1);
+  --gold-soft: rgba(212, 175, 95, 0.55);
+  --gold-dim: rgba(212, 175, 95, 0.2);
+  --rule: rgba(232, 220, 196, 0.08);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  min-height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: 'Cormorant Garamond', Georgia, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
-/* Aurora dourada de fundo - sol nascente sutil */
-.aurora {
+html { height: 100%; }
+body { height: 100%; overflow: hidden; }
+
+/* Vignette fixa - escurece bordas */
+.vignette {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 90vw;
-  height: 90vw;
-  max-width: 1200px;
-  max-height: 1200px;
-  transform: translate(-50%, -45%);
-  background: radial-gradient(
-    circle at center,
-    rgba(212, 175, 95, 0.14) 0%,
-    rgba(212, 175, 95, 0.07) 20%,
-    rgba(212, 175, 95, 0.02) 45%,
-    transparent 65%
-  );
+  inset: 0;
   pointer-events: none;
-  z-index: 0;
-  animation: breathe 9s ease-in-out infinite;
+  z-index: 2;
+  background:
+    radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
 }
 
-@keyframes breathe {
-  0%, 100% { opacity: 0.85; transform: translate(-50%, -45%) scale(1); }
-  50%      { opacity: 1;    transform: translate(-50%, -45%) scale(1.05); }
+/* Scroller com snap */
+.scroller {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
 }
+.scroller::-webkit-scrollbar { display: none; }
 
-.page {
-  position: relative;
-  z-index: 1;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 4rem 2rem 3rem;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ============================
-   HERO
-   ============================ */
-.hero {
-  flex: 1;
+.section {
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 3rem 2rem;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
   text-align: center;
-  padding: 4rem 0;
-}
-
-.logo {
-  width: clamp(220px, 30vw, 380px);
-  height: auto;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
-}
-
-.tagline {
-  margin-top: 2.5rem;
-  font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.78rem;
-  font-weight: 400;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--gold);
-  opacity: 0;
-  animation: rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s forwards;
-}
-
-.tagline::before,
-.tagline::after {
-  content: '';
-  display: inline-block;
-  width: 28px;
-  height: 1px;
-  background: var(--gold-soft);
-  vertical-align: middle;
-  margin: 0 1rem;
-}
-
-.subline {
-  margin-top: 1.5rem;
-  max-width: 32rem;
-  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
-  font-style: italic;
-  font-weight: 300;
-  line-height: 1.6;
-  color: var(--text-soft);
-  opacity: 0;
-  animation: rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
 }
 
 /* ============================
-   FORMULÁRIO DE CADASTRO
+   I — SPLASH
    ============================ */
-.signup {
-  margin-top: 2.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  border: 1px solid var(--gold-dim);
-  border-radius: 999px;
-  padding: 0.35rem 0.35rem 0.35rem 1.5rem;
-  background: rgba(212, 175, 95, 0.04);
-  transition: border-color 0.3s ease, background 0.3s ease;
-  width: 100%;
-  max-width: 420px;
+.splash .logo {
+  width: clamp(280px, 42vw, 540px);
+  height: auto;
   opacity: 0;
-  animation: rise 1.6s cubic-bezier(0.16, 1, 0.3, 1) 1.7s forwards;
+  transform: translateY(20px);
+  animation: rise 2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
 }
 
-.signup:focus-within {
-  border-color: var(--gold-soft);
-  background: rgba(212, 175, 95, 0.07);
+.scroll-cue {
+  position: absolute;
+  bottom: clamp(2rem, 6vh, 3.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--gold);
+  text-decoration: none;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: rise 2s cubic-bezier(0.16, 1, 0.3, 1) 1.8s forwards;
+}
+.scroll-cue .line {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(to bottom, var(--gold-soft), transparent);
+  animation: drop 2.5s ease-in-out infinite;
+}
+@keyframes drop {
+  0%, 100% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+  50%      { transform: scaleY(0.4); transform-origin: top; opacity: 0.5; }
 }
 
-.signup input {
-  fl
+/* ============================
+   ELEMENTOS COMUNS DAS SECOES
+   ============================ */
+.eyebrow {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.2s ease, transform 1.2s ease;
+}
+
+/* ============================
+   II — SOBRE
+   ============================ */
+.manifesto {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--text);
+  max-width: 32rem;
+  margin-bottom: 1.75rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.4s ease 0.2s, transform 1.4s ease 0.2s;
+}
+.manifesto-sub {
+  
