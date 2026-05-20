@@ -1,190 +1,146 @@
 @echo off
 REM =====================================================
 REM   PUBLICAR.bat - AUVORATA
-REM   - Self-relaunch em cmd /k para janela NUNCA fechar
-REM   - Logs tudo em publicar.log
-REM   - Pausa em cada erro
+REM   - Self-relaunch em cmd /k (janela NUNCA fecha)
+REM   - Push pro GitHub
+REM   - Chama cpanel-deploy.bat no final
 REM =====================================================
 
-REM --- Self-relaunch: se nao tem o argumento STAYOPEN, abre cmd /k e roda ---
 if "%~1"=="STAYOPEN" goto :MAIN
-start "AUVORATA - Publicar" cmd /k ""%~f0" STAYOPEN"
+start "AUVORATA - Publicar" cmd /k call "%~f0" STAYOPEN
 exit /b
 
 :MAIN
 setlocal enabledelayedexpansion
-title AUVORATA - Publicar site
+title AUVORATA - Publicar
 cd /d "%~dp0"
 
-REM --- Inicia o log ---
 set "LOG=%~dp0publicar.log"
 echo. > "%LOG%"
-echo [%date% %time%] Iniciando PUBLICAR.bat >> "%LOG%"
+echo [%date% %time%] PUBLICAR.bat >> "%LOG%"
 
 echo.
 echo ===============================================
 echo   AUVORATA - Publicar site
 echo ===============================================
-echo.
-echo Pasta atual:
-echo   %CD%
-echo.
-echo Log completo em: %LOG%
-echo.
+echo Pasta: %CD%
+echo Log:   %LOG%
 echo ===============================================
 echo.
 
-REM --- Limpar lock files orfaos do git (caso processo anterior tenha morrido) ---
+REM --- Limpar lock orfao ---
 if exist ".git\index.lock" (
-  echo [SETUP] Removendo lock orfao do git...
+  echo [SETUP] Removendo lock orfao do git
   del /f /q ".git\index.lock" >>"%LOG%" 2>&1
 )
 
-REM --- Limpar arquivos obsoletos (legacy de versoes anteriores) ---
-REM Estes arquivos eram da versao maison editorial / scripts antigos.
-REM Hoje sao substituidos por PUBLICAR.bat + landing minimalista.
-set "LIMPEZA=0"
+REM --- Limpar arquivos obsoletos ---
+set "L=0"
 for %%F in (
-  "images\atelier.svg"
-  "images\hero-piece.svg"
-  "images\piece-aurum.svg"
-  "images\piece-origem.svg"
-  "images\piece-solene.svg"
-  "deploy.bat"
-  "primeiro-setup.bat"
-  "setup-ssh.bat"
-  "SETUP.md"
-  "script.js"
+  "images\atelier.svg" "images\hero-piece.svg"
+  "images\piece-aurum.svg" "images\piece-origem.svg" "images\piece-solene.svg"
+  "deploy.bat" "primeiro-setup.bat" "setup-ssh.bat" "SETUP.md"
 ) do (
   if exist "%%~F" (
-    if "!LIMPEZA!"=="0" echo [SETUP] Removendo arquivos obsoletos:
+    if "!L!"=="0" echo [SETUP] Removendo arquivos obsoletos:
     echo   - %%~F
     del /f /q "%%~F" >>"%LOG%" 2>&1
-    set "LIMPEZA=1"
+    set "L=1"
   )
 )
-if "!LIMPEZA!"=="1" echo.
+if "!L!"=="1" echo.
 
-REM --- Verificar Git ---
-echo [1/5] Verificando Git...
-where git >nul 2>>"%LOG%"
-if errorlevel 1 (
-  echo.
-  echo  [ERRO] Git nao esta instalado.
-  echo  Baixe em: https://git-scm.com/download/win
-  echo.
-  echo Pressione qualquer tecla para fechar...
-  pause >nul
-  exit /b 1
-)
-git --version
+echo [1/4] Git instalado?
+where git >nul 2>>"%LOG%" || goto :ERR_GIT
 echo   [OK]
 echo.
 
-REM --- Verificar repositorio Git ---
-echo [2/5] Verificando repositorio Git nesta pasta...
-if not exist ".git" (
-  echo.
-  echo  [ERRO] Esta pasta nao tem repositorio Git.
-  echo  Pasta: %CD%
-  echo.
-  echo  Coloque o PUBLICAR.bat dentro da pasta do site
-  echo  ^(onde existe index.html e a pasta .git^).
-  echo.
-  echo Pressione qualquer tecla para fechar...
-  pause >nul
-  exit /b 1
-)
-echo   [OK] Repositorio Git encontrado
+echo [2/4] Repositorio Git presente?
+if not exist ".git" goto :ERR_NOREPO
+echo   [OK]
 echo.
 
-REM --- Verificar index.html ---
-echo [3/5] Verificando arquivos do site...
-if not exist "index.html" (
-  echo.
-  echo  [ERRO] index.html nao encontrado.
-  echo  Pasta: %CD%
-  echo.
-  echo Pressione qualquer tecla para fechar...
-  pause >nul
-  exit /b 1
-)
-echo   [OK] index.html presente
+echo [3/4] SSH com GitHub?
+ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul || goto :ERR_SSH
+echo   [OK]
 echo.
 
-REM --- Testar SSH com GitHub (com timeout curto) ---
-echo [4/5] Testando conexao SSH com GitHub...
-ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -T git@github.com >>"%LOG%" 2>&1
-REM ssh -T retorna 1 mesmo quando autentica com sucesso - precisa procurar a string
-ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | findstr /C:"successfully authenticated" >nul
-if errorlevel 1 (
+echo [4/4] Mudancas locais?
+git status --porcelain > "%TEMP%\auv_st.txt" 2>>"%LOG%"
+for %%A in ("%TEMP%\auv_st.txt") do set TAM=%%~zA
+del "%TEMP%\auv_st.txt" 2>nul
+if "%TAM%"=="0" (
+  echo   [INFO] Nenhuma mudanca. Tentando push de commits pendentes.
   echo.
-  echo  [ERRO] Conexao SSH com GitHub nao autenticou.
-  echo.
-  echo  Veja detalhes no log: %LOG%
-  echo.
-  echo  Solucao rapida:
-  echo    1^) Abra o Git Bash
-  echo    2^) Cole:   ssh -T git@github.com
-  echo    3^) Se pedir, digite:  yes
-  echo    4^) Rode este PUBLICAR.bat de novo
-  echo.
-  echo Pressione qualquer tecla para fechar...
-  pause >nul
-  exit /b 1
+  goto :PUSH
 )
-echo   [OK] GitHub autenticou voce
-echo.
-
-REM --- Detectar se ha mudancas ---
-echo [5/5] Verificando mudancas locais...
-git status --porcelain > "%TEMP%\auvorata_status.txt" 2>>"%LOG%"
-for %%A in ("%TEMP%\auvorata_status.txt") do set TAMANHO=%%~zA
-del "%TEMP%\auvorata_status.txt" 2>nul
-
-if "%TAMANHO%"=="0" (
-  echo   [INFO] Nenhuma mudanca local.
-  echo   Vou apenas tentar empurrar commits pendentes.
-  echo.
-  goto PUSH
-)
-
 echo   Mudancas detectadas:
 git status --short
 echo.
 
-REM --- Mensagem do commit ---
-set "DATAHORA=%date% %time%"
-set "MENSAGEM=Atualizacao do site - %DATAHORA%"
-echo Mensagem de commit padrao:
-echo   %MENSAGEM%
+set "MSG=Atualizacao do site - %date% %time%"
+echo Mensagem padrao: %MSG%
+set /p "USERMSG=Aperte ENTER ou digite outra: "
+if not "%USERMSG%"=="" set "MSG=%USERMSG%"
 echo.
-set /p "NOVAMENSAGEM=Aperte ENTER para usar essa, ou digite outra: "
-if not "%NOVAMENSAGEM%"=="" set "MENSAGEM=%NOVAMENSAGEM%"
 
-echo.
-echo ===============================================
-echo   Salvando alteracoes (commit)
-echo ===============================================
+echo === Commit ===
 git add . 2>>"%LOG%"
-git commit -m "%MENSAGEM%" 2>>"%LOG%"
-if errorlevel 1 (
-  echo.
-  echo  [ERRO] Falha no commit. Veja: %LOG%
-  echo.
-  echo Pressione qualquer tecla para fechar...
-  pause >nul
-  exit /b 1
-)
+git commit -m "%MSG%" 2>>"%LOG%" || goto :ERR_COMMIT
 echo [OK] Commit criado
 echo.
 
 :PUSH
-echo ===============================================
-echo   Enviando para o GitHub
-echo ===============================================
+echo === Push pro GitHub ===
 git push -u origin main 2>>"%LOG%"
 if errorlevel 1 (
-  echo.
-  echo  [AVISO] Push direto falhou. Tentando sincronizar primeiro...
-  git pull origin main 
+  echo [AVISO] Push falhou. Sincronizando...
+  git pull origin main --no-edit --allow-unrelated-histories 2>>"%LOG%"
+  git push -u origin main 2>>"%LOG%" || goto :ERR_PUSH
+)
+echo.
+echo [OK] GitHub atualizado
+echo  https://github.com/francoroger/AUVORATA
+echo.
+
+REM --- Chamar deploy do cPanel ---
+call "%~dp0cpanel-deploy.bat"
+echo.
+
+start https://github.com/francoroger/AUVORATA
+echo ===============================================
+echo Pressione qualquer tecla para fechar...
+pause >nul
+exit /b 0
+
+:ERR_GIT
+echo [ERRO] Git nao instalado. Baixe em: https://git-scm.com/download/win
+echo Pressione qualquer tecla...
+pause >nul
+exit /b 1
+
+:ERR_NOREPO
+echo [ERRO] Esta pasta nao tem repositorio Git: %CD%
+echo Pressione qualquer tecla...
+pause >nul
+exit /b 1
+
+:ERR_SSH
+echo [ERRO] SSH com GitHub nao autenticou.
+echo  Abra Git Bash, rode: ssh -T git@github.com
+echo  Se pedir, digite: yes
+echo Pressione qualquer tecla...
+pause >nul
+exit /b 1
+
+:ERR_COMMIT
+echo [ERRO] Falha no commit. Veja: %LOG%
+echo Pressione qualquer tecla...
+pause >nul
+exit /b 1
+
+:ERR_PUSH
+echo [ERRO] Push falhou. Veja: %LOG%
+echo Pressione qualquer tecla...
+pause >nul
+exit /b 

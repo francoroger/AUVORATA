@@ -6,6 +6,30 @@ Formato: cada vers&atilde;o documenta **o qu&ecirc;** mudou, **por qu&ecirc;** m
 
 ---
 
+## [0.4.0] — 2026-05-19 — Rollback para "em breve elegante" (v0.1.0)
+
+### Voltou
+- **Estrutura completa da v0.1.0**: hero com logo + tagline "em breve" + subline + formul&aacute;rio de captura de e-mail, 3 pilares (Ess&ecirc;ncia / Prop&oacute;sito / Presen&ccedil;a), rodap&eacute; com contato.
+- **Paleta preto + dourado** novamente (`--bg: #0a0807`, `--gold: #d4af5f`)
+- **Tipografia mista**: Cormorant Garamond (display) + Inter (UI)
+- **Aurora dourada de fundo** pulsando lentamente (radial gradient com anima&ccedil;&atilde;o `breathe`)
+- **`script.js` reintroduzido** com valida&ccedil;&atilde;o do formul&aacute;rio + ano din&acirc;mico
+
+### Por qu&ecirc;
+Roger viu a v0.3.0 (paleta clara) no ar e disse que ficou "horr&iacute;vel". Pediu pra voltar pra primeira vers&atilde;o de todas. Decis&atilde;o consciente de retornar pra estrutura mais completa (n&atilde;o s&oacute; logo + contato).
+
+### Arquivos afetados
+- `index.html` — reescrito com a estrutura completa (hero + form + pilares + footer)
+- `style.css` — reescrito com paleta escura + aurora + estilos dos pilares + form pill
+- `script.js` — recriado com valida&ccedil;&atilde;o de email + ano din&acirc;mico
+- `.cpanel.yml` — atualizado pra deployer tamb&eacute;m o `script.js`
+- `PUBLICAR.bat` — `script.js` removido da lista de arquivos obsoletos
+
+### Pend&ecirc;ncia
+- O formul&aacute;rio de email **n&atilde;o salva os endere&ccedil;os em lugar nenhum** ainda. Mostra mensagem de sucesso mas n&atilde;o envia pra ningu&eacute;m. Quando quiser ativar de verdade, integrar com Formspree, Mailchimp ou similar (instru&ccedil;&otilde;es em coment&aacute;rio dentro do `script.js`).
+
+---
+
 ## [0.3.0] — 2026-05-19 — Landing clean (paleta clara)
 
 ### Mudou
@@ -51,36 +75,4 @@ A vers&atilde;o "maison editorial" (v0.1.x) ficou pesada e pretendia ter cole&cc
 - **Estrutura tipo Bvlgari/Boucheron**: header fixo, hero em grid, manifesto editorial, 3 cole&ccedil;&otilde;es, atelier, contato em cards
 - **SVGs de "fotografias" de produto** renderizados em close macro (Solene/Aurum/Origem)
 - **Tipografia mista**: Cormorant Garamond (display) + Inter (UI)
-- **Numera&ccedil;&atilde;o romana** das se&ccedil;&otilde;es
-- **C&oacute;digos de pe&ccedil;a** ("N&deg; 001") estilo joalheria de luxo
-- **Paleta**: preto profundo `#0a0807` + dourado `#d4af5f`
-
-### Infraestrutura adicionada
-- `.htaccess` — for&ccedil;a HTTPS, configura cache, headers de seguran&ccedil;a
-- `robots.txt` + `sitemap.xml` — SEO b&aacute;sico
-- `.gitignore` — ignora SO, editores, credenciais
-- `README.md` + `SETUP.md` — documenta&ccedil;&atilde;o inicial
-- Scripts `.bat`: `primeiro-setup.bat`, `deploy.bat`, `preview.bat`
-
----
-
-## Ferramentas de publica&ccedil;&atilde;o
-
-### `PUBLICAR.bat` (atual, recomendado)
-Script &uacute;nico que: limpa locks, faz commit, faz push pro GitHub, com janela self-relaunch em `cmd /k` que NUNCA fecha sozinha mesmo em erro. Substitui os scripts antigos.
-
-### Scripts legados (ser&atilde;o removidos)
-- `primeiro-setup.bat` — usado uma vez para configurar SSH, agora dispens&aacute;vel
-- `deploy.bat` — vers&atilde;o anterior do PUBLICAR.bat
-- `preview.bat` — mantido (abre o site localmente para testar)
-- `SETUP.md` — substitu&iacute;do por este CHANGELOG.md + README.md atualizado
-
----
-
-## Roadmap (pr&oacute;ximos passos)
-
-- [ ] **Integra&ccedil;&atilde;o com cPanel API** no PUBLICAR.bat — eliminar a etapa manual de "Update from Remote" no cPanel
-- [ ] **Conex&atilde;o do reposit&oacute;rio** no Git Version Control do cPanel (pasta `/home/rogerfra/auvorata.com.br`)
-- [ ] **SSL/HTTPS** via AutoSSL no cPanel
-- [ ] **WhatsApp** adicionar contato direto quando Roger definir o n&uacute;mero
-- [ ] **Quando posicionamento da marca fechar**: expandir landing com se&ccedil;&otilde;es de cole&ccedil;&atilde;o, sobre, etc.
+- **Numera&ccedil;&atilde;
