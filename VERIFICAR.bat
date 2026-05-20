@@ -1,11 +1,12 @@
 @echo off
-REM VERIFICAR.bat - Checa se o servidor tem a mesma versao que o local
+REM VERIFICAR.bat - Checa se servidor tem mesma versao local
 
 if "%~1"=="STAYOPEN" goto :MAIN
 start "AUVORATA - Verificar" cmd /k call "%~f0" STAYOPEN
 exit /b
 
 :MAIN
+setlocal enabledelayedexpansion
 cd /d "%~dp0"
 title AUVORATA - Verificar deploy
 
@@ -17,7 +18,7 @@ echo.
 
 if not exist "version.txt" (
   echo [ERRO] version.txt nao existe localmente.
-  echo Rode PUBLICAR.bat ao menos uma vez antes.
+  echo Rode PUBLICAR.bat antes.
   echo.
   pause >nul
   exit /b 1
@@ -25,43 +26,64 @@ if not exist "version.txt" (
 
 set "LOCAL="
 set /p LOCAL=<version.txt
-echo Versao local:  %LOCAL%
+echo Versao local: !LOCAL!
 echo.
 
-echo Baixando do servidor...
-curl -sk "https://auvorata.com.br/version.txt?nocache=%RANDOM%" > "%TEMP%\v.txt" 2>nul
-set "REMOTE="
-set /p REMOTE=<"%TEMP%\v.txt"
-del "%TEMP%\v.txt" 2>nul
+echo Baixando version.txt do servidor (com check de HTTP status)...
+curl -sk -o "%TEMP%\auv_v.txt" -w "%%{http_code}" "https://auvorata.com.br/version.txt?nc=%RANDOM%" > "%TEMP%\auv_st.txt" 2>nul
+set "HTTPCODE="
+set /p HTTPCODE=<"%TEMP%\auv_st.txt"
+del "%TEMP%\auv_st.txt" 2>nul
 
-if "%REMOTE%"=="" (
-  echo [AVISO] Servidor nao retornou version.txt.
-  echo  Possivel motivo: o repo no cPanel ainda nao foi clonado
-  echo  diretamente na pasta publica. Configure conforme o guia.
+echo   HTTP status: !HTTPCODE!
+
+set "REMOTE=__SEM_ARQUIVO__"
+if "!HTTPCODE!"=="200" (
+  for /f "usebackq delims=" %%L in ("%TEMP%\auv_v.txt") do (
+    if "!REMOTE!"=="__SEM_ARQUIVO__" set "REMOTE=%%L"
+  )
+)
+del "%TEMP%\auv_v.txt" 2>nul
+
+echo.
+echo   Versao servidor: !REMOTE!
+echo.
+
+if not "!HTTPCODE!"=="200" (
+  color 0E
+  echo ===============================================
+  echo   [ALERTA] version.txt nao encontrado no servidor
+  echo ===============================================
+  echo   HTTP !HTTPCODE! = arquivo nao existe na pasta publica
+  echo.
+  echo   Causa: o repo do cPanel nao foi clonado dentro da
+  echo   pasta publica auvorata.com.br/
+  echo.
+  echo   Solucao: siga GUIA-CPANEL-SETUP.md (4 passos)
+  echo   - renomear pasta atual pra BACKUP
+  echo   - criar nova pasta vazia auvorata.com.br
+  echo   - excluir repo antigo no Git Version Control
+  echo   - criar novo repo apontando pra /home/rogerfra/auvorata.com.br
   echo.
   pause >nul
   exit /b 1
 )
 
-echo Versao servidor: %REMOTE%
-echo.
-
-if "%REMOTE%"=="%LOCAL%" (
+if "!REMOTE!"=="!LOCAL!" (
   color 0A
   echo ===============================================
   echo   [OK] LOCAL == SERVIDOR
-  echo   O site ja esta na versao mais recente
+  echo   Site no ar esta na versao mais recente
   echo ===============================================
 ) else (
   color 0C
   echo ===============================================
   echo   [FALHOU] LOCAL != SERVIDOR
-  echo   O servidor ainda esta com versao antiga.
   echo ===============================================
-  echo.
-  echo  - Voce fez push pro GitHub? (rode PUBLICAR.bat)
-  echo  - O cPanel puxou do GitHub? (Update from Remote)
-  echo  - O repo cPanel esta clonado na pasta publica?
+  echo   Servidor tem versao antiga. Possiveis acoes:
+  echo   - Rodar PUBLICAR.bat
+  echo   - Aguardar 1 min e rodar VERIFICAR.bat de novo
+  echo   - cPanel ^> Git ^> Manage ^> Update from Remote manual
 )
 echo.
 start https://auvorata.com.br?check=%RANDOM%
