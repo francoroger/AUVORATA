@@ -29,7 +29,7 @@ echo.
 if exist ".git\index.lock" del /f /q ".git\index.lock" >>"%LOG%" 2>&1
 
 REM Limpar arquivos obsoletos
-for %%F in ("script.js" "style.css" ".cpanel.yml" "cpanel-deploy.bat" "TESTE.bat" "images\auvorata-logo.png" "images\atelier.svg" "images\hero-piece.svg" "images\piece-aurum.svg" "images\piece-origem.svg" "images\piece-solene.svg" "deploy.bat" "primeiro-setup.bat" "setup-ssh.bat" "SETUP.md") do (
+for %%F in ("script.js" "style.css" "cpanel-deploy.bat" "TESTE.bat" "images\auvorata-logo.png" "images\atelier.svg" "images\hero-piece.svg" "images\piece-aurum.svg" "images\piece-origem.svg" "images\piece-solene.svg" "deploy.bat" "primeiro-setup.bat" "setup-ssh.bat" "SETUP.md") do (
   if exist "%%~F" (
     echo [LIMPEZA] Removendo: %%~F
     del /f /q "%%~F" >>"%LOG%" 2>&1

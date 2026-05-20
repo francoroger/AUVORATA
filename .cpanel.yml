@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - /usr/bin/git -C /home/rogerfra/auvorata.com.br fetch origin main
+    - /usr/bin/git -C /home/rogerfra/auvorata.com.br reset --hard origin/main
+    - /bin/date '+deployed at %Y-%m-%d %H:%M:%S' > /home/rogerfra/auvorata.com.br/.last-deploy.txt
