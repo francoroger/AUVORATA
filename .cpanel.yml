@@ -1,0 +1,20 @@
+---
+deployment:
+  tasks:
+    # Pasta de destino (publica do dominio auvorata.com.br)
+    - export DEPLOYPATH=/home/rogerfra/auvorata.com.br/
+
+    # Copia os arquivos do site para a pasta publica
+    - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp style.css $DEPLOYPATH
+    - /bin/cp .htaccess $DEPLOYPATH
+    - /bin/cp robots.txt $DEPLOYPATH
+    - /bin/cp sitemap.xml $DEPLOYPATH
+
+    # Pasta de imagens (cria se nao existir, sincroniza conteudo)
+    - /bin/mkdir -p $DEPLOYPATH/images
+    - /bin/cp -r images/. $DEPLOYPATH/images/
+
+    # NAO copia: README.md, CHANGELOG.md, PUBLICAR.bat, preview.bat,
+    # .git/, .gitignore, .cpanel.yml, publicar.log
+    # Esses ficam apenas no repositorio, fora da web.
